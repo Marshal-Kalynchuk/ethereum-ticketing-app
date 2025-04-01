@@ -1,6 +1,6 @@
 {
   "network": "localhost",
-  "ticketingSystem": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  "testEvent": "0xB7A5bd0345EF1Cc5E66bf61BdeC17D2461fBd968",
-  "ticketNFT": "0xa16E02E87b7454126E5E10d957A927A7F5B5d2be"
+  "ticketingSystem": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+  "testEvent": "0x440C0fCDC317D69606eabc35C0F676D1a8251Ee1",
+  "ticketNFT": "0x9bd03768a7DCc129555dE410FF8E85528A4F88b5"
 }
