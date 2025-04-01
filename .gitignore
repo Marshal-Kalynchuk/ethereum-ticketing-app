@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+.npm
+
+# Hardhat
+artifacts/
+cache/
+coverage/
+coverage.json
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+.DS_Store
+*.log 
