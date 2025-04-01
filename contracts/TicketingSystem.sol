@@ -36,6 +36,7 @@ contract TicketingSystem is Ownable {
     event EventCreated(
         address indexed venue,
         address indexed eventContract,
+        address indexed ticketNFTAddress,
         string name,
         string symbol,
         uint256 ticketPrice,
@@ -133,6 +134,7 @@ contract TicketingSystem is Ownable {
         emit EventCreated(
             msg.sender,
             eventContractAddress, // Use the actual deployed address
+            ticketNFTAddress,
             _config.name,
             _config.symbol,
             _config.ticketPrice,
