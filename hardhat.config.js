@@ -30,7 +30,7 @@ module.exports = {
     },
     localhost: {
       url: "http://127.0.0.1:8545",
-      chainId: 1337,
+      chainId: 31337,
     },
     sepolia: {
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,

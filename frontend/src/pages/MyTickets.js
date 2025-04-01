@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../contexts/Web3Context';
-import { formatDate } from '../utils/constants';
+import { formatDate, getContractAddresses } from '../utils/constants';
 
 // Import ABIs
 import TicketNFTABI from '../utils/abis/TicketNFT.json';
 import EventABI from '../utils/abis/Event.json';
 
 function MyTickets() {
-  const { account, signer, formatEther, parseEther } = useWeb3();
+  const { account, signer, formatEther, parseEther, networkId } = useWeb3();
   
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,10 +31,14 @@ function MyTickets() {
           throw new Error('Please connect your wallet');
         }
         
-        // For our local testing environment, we'll use the deployed contracts from the constants
-        // In a real app, you'd query the blockchain for contracts that the user interacts with
-        const nftAddress = '0x9bd03768a7DCc129555dE410FF8E85528A4F88b5'; // Replace with your deployed NFT address
-        const eventAddress = '0x440C0fCDC317D69606eabc35C0F676D1a8251Ee1'; // Replace with your deployed Event address
+        // Get addresses from constants based on the current network
+        const addresses = getContractAddresses(networkId);
+        const nftAddress = addresses.TICKET_NFT;
+        const eventAddress = addresses.EVENT;
+        
+        if (!nftAddress || !eventAddress) {
+          throw new Error('Contract addresses not found for this network');
+        }
         
         // Connect to contracts
         const nftContract = new ethers.Contract(
@@ -114,7 +118,7 @@ function MyTickets() {
     if (signer && account) {
       fetchTickets();
     }
-  }, [signer, account]);
+  }, [signer, account, networkId]);
 
   const handleListingPriceChange = (e) => {
     setListingData({

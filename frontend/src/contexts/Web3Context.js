@@ -6,6 +6,9 @@ import TicketingSystemABI from '../utils/abis/TicketingSystem.json';
 import EventABI from '../utils/abis/Event.json';
 import TicketNFTABI from '../utils/abis/TicketNFT.json';
 
+// Import constants
+import { getContractAddresses } from '../utils/constants';
+
 // Create context
 const Web3Context = createContext();
 
@@ -39,48 +42,49 @@ export const Web3Provider = ({ children }) => {
       
       // Get network information
       const network = await ethersProvider.getNetwork();
+      const chainId = Number(network.chainId);
       
       // Set state
       setProvider(ethersProvider);
       setSigner(ethersSigner);
       setAccount(accounts[0]);
-      setNetworkId(Number(network.chainId));
+      setNetworkId(chainId);
       
       // Setup contracts
       const deployedContracts = {};
       
       // For Hardhat local blockchain (chainId 31337 or 1337)
-      if (Number(network.chainId) === 31337 || Number(network.chainId) === 1337) {
-        // Use the contract addresses that work with the rest of the app
-        const eventAddress = '0x440C0fCDC317D69606eabc35C0F676D1a8251Ee1';
-        const nftAddress = '0x9bd03768a7DCc129555dE410FF8E85528A4F88b5';
+      if (chainId === 31337 || chainId === 1337) {
+        // Get addresses from constants
+        const addresses = getContractAddresses(chainId);
         
         // Connect to contracts
         try {
           // Connect to the event contract
-          deployedContracts.event = new ethers.Contract(
-            eventAddress,
-            EventABI.abi,
-            ethersSigner
-          );
+          if (addresses.EVENT) {
+            deployedContracts.event = new ethers.Contract(
+              addresses.EVENT,
+              EventABI.abi,
+              ethersSigner
+            );
+          }
           
           // Connect to the NFT contract
-          deployedContracts.ticketNFT = new ethers.Contract(
-            nftAddress,
-            TicketNFTABI.abi,
-            ethersSigner
-          );
+          if (addresses.TICKET_NFT) {
+            deployedContracts.ticketNFT = new ethers.Contract(
+              addresses.TICKET_NFT,
+              TicketNFTABI.abi,
+              ethersSigner
+            );
+          }
           
           // Try to find the ticketing system
-          try {
-            const ticketingSystemAddress = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853';
+          if (addresses.TICKETING_SYSTEM) {
             deployedContracts.ticketingSystem = new ethers.Contract(
-              ticketingSystemAddress,
+              addresses.TICKETING_SYSTEM,
               TicketingSystemABI.abi,
               ethersSigner
             );
-          } catch (err) {
-            console.log("Ticketing system contract not available, continuing...");
           }
         } catch (err) {
           console.error("Error connecting to contracts:", err);

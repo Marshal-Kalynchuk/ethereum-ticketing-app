@@ -1,17 +1,27 @@
+// Read contract addresses from environment variables
+const TICKETING_SYSTEM_ADDRESS = process.env.REACT_APP_TICKETING_SYSTEM_ADDRESS;
+const EVENT_ADDRESS = process.env.REACT_APP_EVENT_ADDRESS;
+const TICKET_NFT_ADDRESS = process.env.REACT_APP_TICKET_NFT_ADDRESS;
+
+// Get supported chain IDs from environment variables
+const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337')
+  .split(',')
+  .map(Number);
+
 // Contract addresses for different networks
 export const CONTRACTS = {
   // Local Hardhat network (chainId 31337 or 1337)
   31337: {
-    // These addresses should match those in your local deployment
-    TICKETING_SYSTEM: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-    EVENT: '0x440C0fCDC317D69606eabc35C0F676D1a8251Ee1',
-    TICKET_NFT: '0x9bd03768a7DCc129555dE410FF8E85528A4F88b5',
+    // These addresses are now from environment variables
+    TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
+    EVENT: EVENT_ADDRESS,
+    TICKET_NFT: TICKET_NFT_ADDRESS,
   },
   1337: {
     // Same as above, for Hardhat network with chainId 1337
-    TICKETING_SYSTEM: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-    EVENT: '0x440C0fCDC317D69606eabc35C0F676D1a8251Ee1',
-    TICKET_NFT: '0x9bd03768a7DCc129555dE410FF8E85528A4F88b5',
+    TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
+    EVENT: EVENT_ADDRESS,
+    TICKET_NFT: TICKET_NFT_ADDRESS,
   },
 };
 
