@@ -223,25 +223,23 @@ function VenueManagement() {
       
       {/* Authorize new venue form */}
       <form onSubmit={handleAuthorizeVenue} className="bg-white shadow overflow-hidden sm:rounded-lg p-6 mb-8">
-        <div className="sm:flex sm:items-center">
-          <div className="sm:flex-grow">
-            <label htmlFor="newVenueAddress" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+        <div className="flex flex-col sm:flex-row items-end gap-4">
+          <div className="w-full">
+            <label htmlFor="newVenueAddress" className="block text-sm font-medium text-gray-700 mb-1">
               New Venue Address
             </label>
-            <div className="mt-1 sm:mt-0 sm:col-span-2">
-              <input
-                type="text"
-                name="newVenueAddress"
-                id="newVenueAddress"
-                value={newVenueAddress}
-                onChange={(e) => setNewVenueAddress(e.target.value)}
-                placeholder="0x..."
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                required
-              />
-            </div>
+            <input
+              type="text"
+              name="newVenueAddress"
+              id="newVenueAddress"
+              value={newVenueAddress}
+              onChange={(e) => setNewVenueAddress(e.target.value)}
+              placeholder="0x..."
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              required
+            />
           </div>
-          <div className="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+          <div className="flex-shrink-0">
             <button
               type="submit"
               disabled={actionLoading}
