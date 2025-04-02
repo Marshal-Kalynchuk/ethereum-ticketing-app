@@ -220,11 +220,22 @@ function MyTickets() {
       }, 3000);
     } catch (err) {
       console.error('Error listing ticket:', err);
-      setListingData({
-        ...listingData,
-        loading: false,
-        error: err.message
-      });
+      // Check if the error is due to user rejecting the transaction
+      if (err.code === 'ACTION_REJECTED' || 
+          (err.message && err.message.includes('user rejected')) || 
+          (err.message && err.message.includes('User denied'))) {
+        setListingData({
+          ...listingData,
+          loading: false,
+          error: 'Transaction was cancelled. You rejected the transaction in your wallet.'
+        });
+      } else {
+        setListingData({
+          ...listingData,
+          loading: false,
+          error: err.message
+        });
+      }
     }
   };
 
@@ -260,7 +271,14 @@ function MyTickets() {
       setTickets(updatedTickets);
     } catch (err) {
       console.error('Error cancelling listing:', err);
-      alert(`Error: ${err.message}`);
+      // Check if the error is due to user rejecting the transaction
+      if (err.code === 'ACTION_REJECTED' || 
+          (err.message && err.message.includes('user rejected')) || 
+          (err.message && err.message.includes('User denied'))) {
+        alert('Transaction was cancelled. You rejected the transaction in your wallet.');
+      } else {
+        alert(`Error: ${err.message}`);
+      }
     }
   };
 
@@ -412,7 +430,7 @@ function MyTickets() {
                           type="text"
                           name="price"
                           id="price"
-                          className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                           placeholder="0.00"
                           value={listingData.price}
                           onChange={handleListingPriceChange}

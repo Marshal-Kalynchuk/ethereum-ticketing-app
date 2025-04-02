@@ -535,7 +535,7 @@ function ManageEvent() {
                       id="eventDate"
                       value={formData.eventDate}
                       onChange={handleInputChange}
-                      className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                   </div>
                 </div>
@@ -551,7 +551,7 @@ function ManageEvent() {
                       id="eventLocation"
                       value={formData.eventLocation}
                       onChange={handleInputChange}
-                      className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       placeholder="Venue, City, Country"
                     />
                   </div>
@@ -568,7 +568,7 @@ function ManageEvent() {
                       rows="4"
                       value={formData.eventDescription}
                       onChange={handleInputChange}
-                      className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                   </div>
                 </div>
@@ -603,7 +603,7 @@ function ManageEvent() {
                       id="baseURI"
                       value={formData.baseURI}
                       onChange={handleInputChange}
-                      className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                       placeholder="https://example.com/api/metadata/"
                     />
                   </div>

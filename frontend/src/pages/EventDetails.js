@@ -136,7 +136,14 @@ function EventDetails() {
       });
     } catch (err) {
       console.error('Error purchasing ticket:', err);
-      setPurchaseError(err.message);
+      // Check if the error is due to user rejecting the transaction
+      if (err.code === 'ACTION_REJECTED' || 
+          (err.message && err.message.includes('user rejected')) || 
+          (err.message && err.message.includes('User denied'))) {
+        setPurchaseError('Transaction was cancelled. You rejected the transaction in your wallet.');
+      } else {
+        setPurchaseError(err.message);
+      }
       setPurchaseLoading(false);
     }
   };

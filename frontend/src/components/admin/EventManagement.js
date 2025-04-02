@@ -326,7 +326,7 @@ function EventManagement() {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>
           </div>
@@ -343,7 +343,7 @@ function EventManagement() {
                 value={formData.symbol}
                 onChange={handleInputChange}
                 required
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 placeholder="TCKT"
               />
             </div>
@@ -362,7 +362,7 @@ function EventManagement() {
                 value={formData.ticketPrice}
                 onChange={handleInputChange}
                 required
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 placeholder="0.1"
               />
             </div>
@@ -381,7 +381,7 @@ function EventManagement() {
                 onChange={handleInputChange}
                 required
                 min="1"
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 placeholder="100"
               />
             </div>
@@ -399,7 +399,7 @@ function EventManagement() {
                 value={formData.resaleLimitMultiplier}
                 onChange={handleInputChange}
                 min="100"
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Maximum % of original price for resale (e.g., 120 = 120%)</p>
@@ -418,7 +418,7 @@ function EventManagement() {
                 onChange={handleInputChange}
                 min="0"
                 max="3000"
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Fee for secondary sales in basis points (e.g., 500 = 5%)</p>
