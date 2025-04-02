@@ -8,6 +8,7 @@ import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import MyTickets from './pages/MyTickets';
 import Marketplace from './pages/Marketplace';
+import Admin from './pages/Admin';
 
 // Import components
 import Navbar from './components/Navbar';
@@ -32,6 +33,7 @@ function App() {
             <Route path="/events/:address" element={<EventDetails />} />
             <Route path="/my-tickets" element={<MyTickets />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         )}

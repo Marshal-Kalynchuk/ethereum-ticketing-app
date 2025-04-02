@@ -11,7 +11,8 @@ function Navbar() {
     { name: 'Home', href: '/' },
     { name: 'Events', href: '/events' },
     { name: 'My Tickets', href: '/my-tickets' },
-    { name: 'Marketplace', href: '/marketplace' }
+    { name: 'Marketplace', href: '/marketplace' },
+    { name: 'Admin', href: '/admin' }
   ];
 
   const isActive = (path) => {
