@@ -22,3 +22,5 @@ coverage.json
 logs/
 deployments/
 build/
+# Local Netlify folder
+.netlify

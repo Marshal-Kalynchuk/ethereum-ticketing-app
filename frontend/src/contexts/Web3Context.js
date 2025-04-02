@@ -6,7 +6,7 @@ import TicketingSystemABI from '../utils/abis/TicketingSystem.json';
 // EventABI and TicketNFTABI imports are not used directly in this file
 
 // Import constants
-import { getContractAddresses } from '../utils/constants';
+import { getContractAddresses, SUPPORTED_CHAIN_IDS } from '../utils/constants';
 
 // Local storage key for persisting connection
 const WALLET_CONNECTED_KEY = 'ticketing_wallet_connected';
@@ -67,9 +67,9 @@ export const Web3Provider = ({ children }) => {
       // Setup contracts
       const deployedContracts = {};
       
-      // For Hardhat local blockchain (chainId 31337 or 1337)
-      if (chainId === 31337 || chainId === 1337) {
-        // Get addresses from constants
+      // Check if the current network is supported
+      if (SUPPORTED_CHAIN_IDS.includes(chainId)) {
+        // Get addresses from constants for the current network
         const addresses = getContractAddresses(chainId);
         
         // Connect to contracts
@@ -81,16 +81,18 @@ export const Web3Provider = ({ children }) => {
               TicketingSystemABI.abi,
               ethersSigner
             );
+            console.log(`Connected to TicketingSystem on chain ${chainId} at address ${addresses.TICKETING_SYSTEM}`);
           } else {
-            throw new Error("Ticketing system address not found");
+            throw new Error(`Ticketing system address not found for network ${chainId}`);
           }
         } catch (err) {
           console.error("Error connecting to contracts:", err);
           setError("Error connecting to smart contracts. Please check if they are deployed.");
         }
       } else {
-        // For other networks, we would need to set up appropriate contract addresses
-        setError("Please connect to the local blockchain (Hardhat network)");
+        // For unsupported networks
+        const supportedNetworks = SUPPORTED_CHAIN_IDS.join(', ');
+        setError(`Please connect to a supported network. Supported chain IDs: ${supportedNetworks}`);
       }
       
       setContracts(deployedContracts);
