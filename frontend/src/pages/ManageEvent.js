@@ -25,7 +25,6 @@ function ManageEvent() {
     eventLocation: '',
     eventDescription: '',
     baseURI: '',
-    newTicketType: '',
   });
   
   // Action states
@@ -108,20 +107,6 @@ function ManageEvent() {
           console.log('Base URI not available');
         }
         
-        // Get valid ticket types
-        let ticketTypes = [];
-        try {
-          // For simplicity, we'll check if 'General Admission' is valid
-          const isGeneralAdmissionValid = await eventContract.validTicketTypes('General Admission');
-          if (isGeneralAdmissionValid) {
-            ticketTypes.push('General Admission');
-          }
-          
-          // In a real app, you'd get all ticket types from events
-        } catch (err) {
-          console.log('Could not fetch ticket types');
-        }
-        
         setEvent({
           address,
           contract: eventContract,
@@ -141,7 +126,6 @@ function ManageEvent() {
           totalRevenue,
           venueAddress,
           baseURI,
-          ticketTypes
         });
         
         // Initialize form data
@@ -155,7 +139,6 @@ function ManageEvent() {
           eventLocation: eventLocation || '',
           eventDescription: eventDescription || '',
           baseURI: baseURI || '',
-          newTicketType: '',
         });
         
         setLoading(false);
@@ -259,53 +242,6 @@ function ManageEvent() {
       setActionLoading(false);
     } catch (err) {
       console.error('Error setting base URI:', err);
-      setActionError(err.message);
-      setActionLoading(false);
-    }
-  };
-
-  const handleAddTicketType = async () => {
-    try {
-      setActionLoading(true);
-      setActionSuccess(false);
-      setActionError(null);
-      
-      if (!event || !event.contract) {
-        throw new Error('Event contract not found');
-      }
-      
-      if (!formData.newTicketType.trim()) {
-        throw new Error('Please enter a ticket type');
-      }
-      
-      // Call addTicketType
-      const tx = await event.contract.addTicketType(formData.newTicketType);
-      
-      await tx.wait();
-      
-      setActionSuccess(true);
-      setActionMessage('Ticket type added successfully!');
-      
-      // Update event state
-      setEvent({
-        ...event,
-        ticketTypes: [...event.ticketTypes, formData.newTicketType]
-      });
-      
-      // Reset form field
-      setFormData({
-        ...formData,
-        newTicketType: ''
-      });
-      
-      setTimeout(() => {
-        setActionSuccess(false);
-        setActionMessage('');
-      }, 3000);
-      
-      setActionLoading(false);
-    } catch (err) {
-      console.error('Error adding ticket type:', err);
       setActionError(err.message);
       setActionLoading(false);
     }
@@ -577,16 +513,6 @@ function ManageEvent() {
           >
             NFT Metadata
           </button>
-          <button
-            onClick={() => setActiveTab('ticketTypes')}
-            className={`${
-              activeTab === 'ticketTypes'
-                ? 'border-primary-500 text-primary-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Ticket Types
-          </button>
         </nav>
       </div>
       
@@ -704,59 +630,6 @@ function ManageEvent() {
                   <p className="text-sm text-gray-700">
                     <span className="font-medium">NFT Contract Address:</span> {event.nftAddress}
                   </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Ticket Types Tab */}
-          {activeTab === 'ticketTypes' && (
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Manage Ticket Types</h3>
-              
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-700 mb-2">Current Ticket Types</h4>
-                {event.ticketTypes.length === 0 ? (
-                  <p className="text-sm text-gray-500">No custom ticket types defined.</p>
-                ) : (
-                  <ul className="bg-gray-50 rounded-md divide-y divide-gray-200">
-                    {event.ticketTypes.map((type, index) => (
-                      <li key={index} className="px-4 py-3 text-sm text-gray-700">{type}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              
-              <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-md font-medium text-gray-700 mb-2">Add New Ticket Type</h4>
-                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                  <div className="sm:col-span-4">
-                    <label htmlFor="newTicketType" className="block text-sm font-medium text-gray-700">
-                      Ticket Type Name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="newTicketType"
-                        id="newTicketType"
-                        value={formData.newTicketType}
-                        onChange={handleInputChange}
-                        className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        placeholder="VIP, Regular, Backstage, etc."
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={handleAddTicketType}
-                    disabled={actionLoading || !formData.newTicketType.trim()}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    {actionLoading ? 'Adding...' : 'Add Ticket Type'}
-                  </button>
                 </div>
               </div>
             </div>

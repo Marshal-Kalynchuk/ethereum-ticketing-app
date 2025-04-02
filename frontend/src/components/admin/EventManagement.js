@@ -680,22 +680,6 @@ function EventManagement() {
                       >
                         Manage Event
                       </Link>
-                      {Number(event.currentPhase) === 0 && (
-                        <button
-                          type="button"
-                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-yellow-700 bg-yellow-50 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                        >
-                          Close Event
-                        </button>
-                      )}
-                      {Number(event.currentPhase) !== 0 && (
-                        <button
-                          type="button"
-                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                          Reopen Event
-                        </button>
-                      )}
                     </div>
                   </li>
                 ))}
