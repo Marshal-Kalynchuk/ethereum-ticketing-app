@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
 import { formatDate } from '../utils/constants';
+import { ethers } from 'ethers';
+import EventABI from '../utils/abis/Event.json';
 
 function Events() {
-  const { contracts, formatEther } = useWeb3();
+  const { contracts, formatEther, signer } = useWeb3();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,14 +31,18 @@ function Events() {
           const eventAddress = await contracts.ticketingSystem.deployedEvents(i);
           
           // Create contract instance
-          const Event = await contracts.ticketingSystem.runner.provider.getCode(eventAddress);
+          const eventCode = await contracts.ticketingSystem.runner.provider.getCode(eventAddress);
           
-          if (Event === '0x') {
+          if (eventCode === '0x') {
             continue; // Skip if contract doesn't exist
           }
           
           // Create interface to interact with this event
-          const eventInstance = await contracts.event.attach(eventAddress);
+          const eventInstance = new ethers.Contract(
+            eventAddress,
+            EventABI.abi,
+            signer
+          );
           
           // Get event details
           const eventName = await eventInstance.eventName();
@@ -87,7 +93,7 @@ function Events() {
     if (contracts.ticketingSystem) {
       fetchEvents();
     }
-  }, [contracts]);
+  }, [contracts, signer]);
 
   if (loading) {
     return (

@@ -75,31 +75,15 @@ export const Web3Provider = ({ children }) => {
         
         // Connect to contracts
         try {
-          // Connect to the event contract
-          if (addresses.EVENT) {
-            deployedContracts.event = new ethers.Contract(
-              addresses.EVENT,
-              EventABI.abi,
-              ethersSigner
-            );
-          }
-          
-          // Connect to the NFT contract
-          if (addresses.TICKET_NFT) {
-            deployedContracts.ticketNFT = new ethers.Contract(
-              addresses.TICKET_NFT,
-              TicketNFTABI.abi,
-              ethersSigner
-            );
-          }
-          
-          // Try to find the ticketing system
+          // Only connect to the ticketing system
           if (addresses.TICKETING_SYSTEM) {
             deployedContracts.ticketingSystem = new ethers.Contract(
               addresses.TICKETING_SYSTEM,
               TicketingSystemABI.abi,
               ethersSigner
             );
+          } else {
+            throw new Error("Ticketing system address not found");
           }
         } catch (err) {
           console.error("Error connecting to contracts:", err);

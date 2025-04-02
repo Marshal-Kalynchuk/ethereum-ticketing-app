@@ -1,7 +1,5 @@
 // Read contract addresses from environment variables
 const TICKETING_SYSTEM_ADDRESS = process.env.REACT_APP_TICKETING_SYSTEM_ADDRESS;
-const EVENT_ADDRESS = process.env.REACT_APP_EVENT_ADDRESS;
-const TICKET_NFT_ADDRESS = process.env.REACT_APP_TICKET_NFT_ADDRESS;
 
 // Get supported chain IDs from environment variables
 const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337')
@@ -12,16 +10,12 @@ const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337
 export const CONTRACTS = {
   // Local Hardhat network (chainId 31337 or 1337)
   31337: {
-    // These addresses are now from environment variables
+    // Only keeping the ticketing system address
     TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
-    EVENT: EVENT_ADDRESS,
-    TICKET_NFT: TICKET_NFT_ADDRESS,
   },
   1337: {
     // Same as above, for Hardhat network with chainId 1337
     TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
-    EVENT: EVENT_ADDRESS,
-    TICKET_NFT: TICKET_NFT_ADDRESS,
   },
 };
 

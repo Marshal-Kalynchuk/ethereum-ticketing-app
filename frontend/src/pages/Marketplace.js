@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../contexts/Web3Context';
-import { formatDate, getContractAddresses } from '../utils/constants';
+import { formatDate } from '../utils/constants';
 
 // Import ABIs
 import TicketNFTABI from '../utils/abis/TicketNFT.json';
 import EventABI from '../utils/abis/Event.json';
 
 function Marketplace() {
-  const { account, signer, formatEther, networkId } = useWeb3();
+  const { account, signer, formatEther, contracts, networkId } = useWeb3();
   
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,86 +23,94 @@ function Marketplace() {
         setLoading(true);
         setError(null);
         
-        if (!signer || !account) {
+        if (!signer || !account || !contracts.ticketingSystem) {
           throw new Error('Please connect your wallet');
         }
         
-        // Get addresses from constants based on the current network
-        const addresses = getContractAddresses(networkId);
-        const nftAddress = addresses.TICKET_NFT;
-        const eventAddress = addresses.EVENT;
+        // Get number of events from ticketing system
+        const eventCount = await contracts.ticketingSystem.getDeployedEventsCount();
         
-        if (!nftAddress || !eventAddress) {
-          throw new Error('Contract addresses not found for this network');
-        }
-        
-        // Connect to contracts
-        const nftContract = new ethers.Contract(
-          nftAddress,
-          TicketNFTABI.abi,
-          signer
-        );
-        
-        const eventContract = new ethers.Contract(
-          eventAddress,
-          EventABI.abi,
-          signer
-        );
-        
-        // Get event details
-        const eventName = await eventContract.eventName();
-        
-        // For simplicity, we'll scan token IDs 1-30 to find listings
-        // In a production app, you would use events to track listings
-        const listingPromises = [];
-        
-        for (let i = 1; i <= 30; i++) {
+        // For each event, check for ticket listings
+        const allListings = [];
+
+        for (let eventIndex = 0; eventIndex < eventCount; eventIndex++) {
           try {
-            // Check if token exists by checking if it has an owner
-            const owner = await nftContract.ownerOf(i);
+            // Get event address from ticketing system
+            const eventAddress = await contracts.ticketingSystem.deployedEvents(eventIndex);
             
-            // Get market listing details
-            const listing = await nftContract.marketItems(i);
+            // Create event contract instance
+            const eventInstance = new ethers.Contract(
+              eventAddress,
+              EventABI.abi,
+              signer
+            );
             
-            if (listing.isForSale) {
-              // Get ticket details
-              const originalPrice = await nftContract.originalPrice(i);
-              const maxResalePrice = await nftContract.getMaxResalePrice(i);
-              
-              // Try to get ticket metadata
-              let seatInfo = '';
-              let ticketType = '';
-              let eventDate = 0;
-              
+            // Get event details
+            const eventName = await eventInstance.eventName();
+            
+            // Get NFT contract address from event
+            const nftAddress = await eventInstance.ticketNFT();
+            
+            // Create NFT contract instance
+            const nftContract = new ethers.Contract(
+              nftAddress,
+              TicketNFTABI.abi,
+              signer
+            );
+            
+            // For simplicity, we'll scan token IDs 1-30 to find listings
+            // In a production app, you would use events to track listings
+            for (let i = 1; i <= 30; i++) {
               try {
-                [seatInfo, ticketType, eventDate] = await nftContract.getTicketMetadata(i);
+                // Check if token exists by checking if it has an owner
+                const owner = await nftContract.ownerOf(i);
+                
+                // Get market listing details
+                const listing = await nftContract.marketItems(i);
+                
+                if (listing.isForSale) {
+                  // Get ticket details
+                  const originalPrice = await nftContract.originalPrice(i);
+                  const maxResalePrice = await nftContract.getMaxResalePrice(i);
+                  
+                  // Try to get ticket metadata
+                  let seatInfo = '';
+                  let ticketType = '';
+                  let eventDate = 0;
+                  
+                  try {
+                    [seatInfo, ticketType, eventDate] = await nftContract.getTicketMetadata(i);
+                  } catch (err) {
+                    console.log('Metadata not available for ticket', i);
+                  }
+                  
+                  allListings.push({
+                    tokenId: i,
+                    owner,
+                    seller: listing.seller,
+                    askingPrice: listing.askingPrice,
+                    originalPrice,
+                    maxResalePrice,
+                    seatInfo,
+                    ticketType,
+                    eventDate,
+                    eventName,
+                    eventAddress,
+                    nftAddress
+                  });
+                }
               } catch (err) {
-                console.log('Metadata not available for ticket', i);
+                // Token doesn't exist or other error, skip it
+                continue;
               }
-              
-              listingPromises.push({
-                tokenId: i,
-                owner,
-                seller: listing.seller,
-                askingPrice: listing.askingPrice,
-                originalPrice,
-                maxResalePrice,
-                seatInfo,
-                ticketType,
-                eventDate,
-                eventName,
-                eventAddress,
-                nftAddress
-              });
             }
           } catch (err) {
-            // Token doesn't exist or other error, skip it
-            continue;
+            console.error(`Error processing event ${eventIndex}:`, err);
+            // Continue to next event even if this one fails
           }
         }
         
-        const listingResults = await Promise.all(listingPromises);
-        setListings(listingResults);
+        setListings(allListings);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching listings:', err);
@@ -111,10 +119,10 @@ function Marketplace() {
       }
     };
     
-    if (signer && account) {
+    if (signer && account && contracts.ticketingSystem) {
       fetchListings();
     }
-  }, [signer, account, networkId]);
+  }, [signer, account, contracts.ticketingSystem, networkId]);
 
   const purchaseTicket = async (listing) => {
     try {

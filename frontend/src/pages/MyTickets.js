@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../contexts/Web3Context';
-import { formatDate, getContractAddresses } from '../utils/constants';
+import { formatDate } from '../utils/constants';
 
 // Import ABIs
 import TicketNFTABI from '../utils/abis/TicketNFT.json';
@@ -28,34 +28,19 @@ function MyTickets() {
         setLoading(true);
         setError(null);
         
-        if (!signer || !account) {
+        if (!signer || !account || !contracts.ticketingSystem) {
           throw new Error('Please connect your wallet');
         }
         
-        // Get addresses from constants
-        const addresses = getContractAddresses(networkId);
-        
-        // First get the ticketing system address
-        if (!addresses.TICKETING_SYSTEM) {
-          throw new Error('Ticketing system address not found for this network');
-        }
-        
-        // Connect to the ticketing system
-        const ticketingSystem = new ethers.Contract(
-          addresses.TICKETING_SYSTEM,
-          TicketingSystemABI.abi,
-          signer
-        );
-        
-        // Get all deployed events
-        const eventCount = await ticketingSystem.getDeployedEventsCount();
+        // Get all deployed events from ticketing system
+        const eventCount = await contracts.ticketingSystem.getDeployedEventsCount();
         const allTickets = [];
         
         // Loop through all events
         for (let i = 0; i < eventCount; i++) {
           try {
             // Get event address
-            const eventAddress = await ticketingSystem.deployedEvents(i);
+            const eventAddress = await contracts.ticketingSystem.deployedEvents(i);
             
             // Connect to event contract
             const eventContract = new ethers.Contract(
@@ -134,10 +119,10 @@ function MyTickets() {
       }
     };
     
-    if (signer && account) {
+    if (signer && account && contracts.ticketingSystem) {
       fetchTickets();
     }
-  }, [signer, account, networkId]);
+  }, [signer, account, contracts.ticketingSystem, networkId]);
 
   const handleListingPriceChange = (e) => {
     setListingData({
