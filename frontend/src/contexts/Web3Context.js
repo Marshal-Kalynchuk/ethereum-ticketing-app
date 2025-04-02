@@ -9,6 +9,9 @@ import TicketNFTABI from '../utils/abis/TicketNFT.json';
 // Import constants
 import { getContractAddresses } from '../utils/constants';
 
+// Local storage key for persisting connection
+const WALLET_CONNECTED_KEY = 'ticketing_wallet_connected';
+
 // Create context
 const Web3Context = createContext();
 
@@ -58,6 +61,9 @@ export const Web3Provider = ({ children }) => {
       setSigner(ethersSigner);
       setAccount(accounts[0]);
       setNetworkId(chainId);
+      
+      // Store connection state in localStorage
+      localStorage.setItem(WALLET_CONNECTED_KEY, 'true');
       
       // Setup contracts
       const deployedContracts = {};
@@ -110,6 +116,9 @@ export const Web3Provider = ({ children }) => {
       console.error("Error connecting to wallet:", err);
       setError(err.message);
       setIsLoading(false);
+      
+      // Clear localStorage on connection error
+      localStorage.removeItem(WALLET_CONNECTED_KEY);
     }
   }, []);
 
@@ -123,7 +132,10 @@ export const Web3Provider = ({ children }) => {
     setContracts({});
     setError(null);
     
-    // Clear any localStorage that might be caching connection
+    // Clear localStorage connection flag
+    localStorage.removeItem(WALLET_CONNECTED_KEY);
+    
+    // Clear any other localStorage that might be caching connection
     try {
       if (window && window.localStorage) {
         // Remove MetaMask connection data if any exists
@@ -134,6 +146,33 @@ export const Web3Provider = ({ children }) => {
       console.error("Error clearing localStorage:", err);
     }
   }, []);
+
+  // Auto-connect on startup if previously connected
+  useEffect(() => {
+    const autoConnect = async () => {
+      // Check if we were previously connected
+      const wasConnected = localStorage.getItem(WALLET_CONNECTED_KEY) === 'true';
+      
+      if (wasConnected && window.ethereum) {
+        try {
+          // Check if we're already connected to MetaMask
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            // Silently reconnect
+            await connectWallet(false);
+          } else {
+            // If no accounts found but flag was true, clear the flag
+            localStorage.removeItem(WALLET_CONNECTED_KEY);
+          }
+        } catch (err) {
+          console.error("Error auto-connecting:", err);
+          localStorage.removeItem(WALLET_CONNECTED_KEY);
+        }
+      }
+    };
+    
+    autoConnect();
+  }, [connectWallet]);
 
   // Listen for account changes
   useEffect(() => {
