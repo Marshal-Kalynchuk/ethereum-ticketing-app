@@ -2,7 +2,7 @@
 const TICKETING_SYSTEM_ADDRESS = process.env.REACT_APP_TICKETING_SYSTEM_ADDRESS;
 
 // Get supported chain IDs from environment variables
-const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337,11155111')
+export const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337,11155111')
   .split(',')
   .map(Number);
 

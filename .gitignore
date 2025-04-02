@@ -21,3 +21,4 @@ coverage.json
 
 logs/
 deployments/
+build/

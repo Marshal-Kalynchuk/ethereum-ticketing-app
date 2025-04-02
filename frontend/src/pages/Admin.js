@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
 import { useWeb3 } from '../contexts/Web3Context';
-import { formatDate } from '../utils/constants';
 import EventManagement from '../components/admin/EventManagement';
 import VenueManagement from '../components/admin/VenueManagement';
 
 function Admin() {
-  const { account, signer, provider, contracts, formatEther } = useWeb3();
+  const { account, signer, contracts } = useWeb3();
   const [activeTab, setActiveTab] = useState('events');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);

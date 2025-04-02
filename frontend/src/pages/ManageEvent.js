@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../contexts/Web3Context';
-import { formatDate } from '../utils/constants';
 
 // Import ABIs
 import EventABI from '../utils/abis/Event.json';
@@ -11,7 +10,7 @@ import TicketNFTABI from '../utils/abis/TicketNFT.json';
 function ManageEvent() {
   const { address } = useParams();
   const navigate = useNavigate();
-  const { account, signer, formatEther, parseEther } = useWeb3();
+  const { account, signer, formatEther } = useWeb3();
   
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);

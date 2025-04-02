@@ -169,16 +169,15 @@ function EventManagement() {
         log.topics && log.topics[0] === ethers.id("EventCreated(address,address,address,string,string,uint256,uint256)")
       );
       
-      let eventAddress;
       if (eventCreatedLog) {
         const EventABI = (await import('../../utils/abis/Event.json')).default;
         const eventInterface = new ethers.Interface(EventABI.abi);
         try {
-          const decodedLog = eventInterface.parseLog({ 
+          // Decode the log but don't store it since we're not using it
+          eventInterface.parseLog({ 
             topics: eventCreatedLog.topics, 
             data: eventCreatedLog.data 
           });
-          eventAddress = decodedLog.args.eventContract;
         } catch (e) {
           console.log('Error decoding log:', e);
         }
@@ -234,13 +233,15 @@ function EventManagement() {
       );
       
       // Get current revenue information before withdrawal
-      const [primaryRevenue, secondaryRevenue, totalRevenue] = await eventContract.totalRevenue();
+      // const [primaryRevenue, secondaryRevenue, totalRevenue] = await eventContract.totalRevenue();
+      const [, , totalRevenue] = await eventContract.totalRevenue();
       
       // Call the withdrawFunds function
       const tx = await eventContract.withdrawFunds();
       
       // Wait for the transaction to be mined
-      const receipt = await tx.wait();
+      // const receipt = await tx.wait();
+      await tx.wait();
       
       // Update the events list with new balances (0)
       const updatedEvents = events.map(event => {

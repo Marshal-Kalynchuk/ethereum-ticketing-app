@@ -9,7 +9,7 @@ import EventABI from '../utils/abis/Event.json';
 
 function EventDetails() {
   const { address } = useParams();
-  const { account, signer, formatEther, parseEther } = useWeb3();
+  const { signer, formatEther } = useWeb3();
   
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);

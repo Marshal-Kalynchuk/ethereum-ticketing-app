@@ -6,7 +6,6 @@ import { formatDate } from '../utils/constants';
 // Import ABIs
 import TicketNFTABI from '../utils/abis/TicketNFT.json';
 import EventABI from '../utils/abis/Event.json';
-import TicketingSystemABI from '../utils/abis/TicketingSystem.json';
 
 function MyTickets() {
   const { account, signer, formatEther, parseEther, networkId, contracts } = useWeb3();

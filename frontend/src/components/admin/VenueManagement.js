@@ -4,7 +4,7 @@ import { useWeb3 } from '../../contexts/Web3Context';
 import DemoVenueAccounts from './DemoVenueAccounts';
 
 function VenueManagement() {
-  const { account, signer, contracts, formatEther } = useWeb3();
+  const { account, signer, contracts } = useWeb3();
   
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);

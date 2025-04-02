@@ -3,8 +3,7 @@ import { ethers } from 'ethers';
 
 // Import ABI files from the artifacts
 import TicketingSystemABI from '../utils/abis/TicketingSystem.json';
-import EventABI from '../utils/abis/Event.json';
-import TicketNFTABI from '../utils/abis/TicketNFT.json';
+// EventABI and TicketNFTABI imports are not used directly in this file
 
 // Import constants
 import { getContractAddresses } from '../utils/constants';
