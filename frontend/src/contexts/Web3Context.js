@@ -23,7 +23,7 @@ export const Web3Provider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // Connect to Web3 provider
-  const connectWallet = useCallback(async () => {
+  const connectWallet = useCallback(async (forceConnect = false) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -33,8 +33,17 @@ export const Web3Provider = ({ children }) => {
         throw new Error("MetaMask is not installed. Please install MetaMask to use this application.");
       }
 
-      // Request account access
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      // Request account access - use different method if forceConnect is true
+      const accounts = forceConnect 
+        ? await window.ethereum.request({ 
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
+          }).then(() => window.ethereum.request({ method: 'eth_requestAccounts' }))
+        : await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error("No accounts found. Please connect to MetaMask.");
+      }
       
       // Create ethers provider and signer
       const ethersProvider = new ethers.BrowserProvider(window.ethereum);
@@ -106,39 +115,86 @@ export const Web3Provider = ({ children }) => {
 
   // Disconnect wallet
   const disconnectWallet = useCallback(() => {
+    // Clear all state
     setProvider(null);
     setSigner(null);
     setAccount(null);
     setNetworkId(null);
     setContracts({});
+    setError(null);
+    
+    // Clear any localStorage that might be caching connection
+    try {
+      if (window && window.localStorage) {
+        // Remove MetaMask connection data if any exists
+        localStorage.removeItem('walletconnect');
+        localStorage.removeItem('WALLETCONNECT_DEEPLINK_CHOICE');
+      }
+    } catch (err) {
+      console.error("Error clearing localStorage:", err);
+    }
   }, []);
 
   // Listen for account changes
   useEffect(() => {
-    const handleAccountsChanged = (accounts) => {
+    const handleAccountsChanged = async (accounts) => {
+      console.log("Accounts changed:", accounts);
       if (accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
         disconnectWallet();
       } else if (accounts[0] !== account) {
-        setAccount(accounts[0]);
+        // If the account has changed, we need to reconnect with the new account
+        // Use a simplified reconnect to avoid resetting the entire UI
+        if (provider) {
+          try {
+            const ethersSigner = await provider.getSigner();
+            setSigner(ethersSigner);
+            setAccount(accounts[0]);
+            
+            // Reconnect contracts with new signer
+            if (Object.keys(contracts).length > 0) {
+              const updatedContracts = {};
+              for (const [name, contract] of Object.entries(contracts)) {
+                updatedContracts[name] = contract.connect(ethersSigner);
+              }
+              setContracts(updatedContracts);
+            }
+          } catch (err) {
+            console.error("Error reconnecting with new account:", err);
+            // If reconnect fails, just do a full disconnect
+            disconnectWallet();
+          }
+        } else {
+          // If no provider, do a full reconnect
+          connectWallet();
+        }
       }
     };
 
     const handleChainChanged = (_chainId) => {
+      console.log("Chain changed:", _chainId);
       window.location.reload();
+    };
+
+    const handleDisconnect = (error) => {
+      console.log("Provider disconnected:", error);
+      disconnectWallet();
     };
 
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       window.ethereum.on('chainChanged', handleChainChanged);
+      window.ethereum.on('disconnect', handleDisconnect);
     }
 
     return () => {
       if (window.ethereum) {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
         window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('disconnect', handleDisconnect);
       }
     };
-  }, [account, disconnectWallet]);
+  }, [account, provider, contracts, connectWallet, disconnectWallet]);
 
   // Format ethers for display
   const formatEther = (value) => {

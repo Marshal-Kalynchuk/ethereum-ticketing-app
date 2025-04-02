@@ -4,6 +4,11 @@ import { useWeb3 } from '../contexts/Web3Context';
 function ConnectWallet() {
   const { connectWallet, isLoading, error } = useWeb3();
 
+  const handleConnect = () => {
+    // Use forceConnect=true to force MetaMask to show the account selection dialog
+    connectWallet(true);
+  };
+
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <div className="text-center">
@@ -21,7 +26,7 @@ function ConnectWallet() {
         )}
         
         <button
-          onClick={connectWallet}
+          onClick={handleConnect}
           disabled={isLoading}
           className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 w-full"
         >

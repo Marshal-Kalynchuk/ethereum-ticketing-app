@@ -34,13 +34,13 @@ function Navbar() {
                 Ticketing DApp
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-4 justify-center">
               {/* Desktop navigation */}
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`${isActive(item.href)} px-3 py-2 rounded-md text-sm font-medium`}
+                  className={`${isActive(item.href)} px-3 py-2 rounded-md text-sm font-medium flex items-center`}
                 >
                   {item.name}
                 </Link>
