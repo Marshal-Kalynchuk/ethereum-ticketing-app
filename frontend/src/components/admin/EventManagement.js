@@ -24,6 +24,10 @@ function EventManagement() {
   const [isCreating, setIsCreating] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [createError, setCreateError] = useState(null);
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [withdrawSuccess, setWithdrawSuccess] = useState(false);
+  const [withdrawError, setWithdrawError] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -74,6 +78,17 @@ function EventManagement() {
             console.log('Optional event details not available');
           }
           
+          // Get revenue information
+          let primaryRevenue = ethers.parseEther("0");
+          let secondaryRevenue = ethers.parseEther("0");
+          let totalRevenue = ethers.parseEther("0");
+          
+          try {
+            [primaryRevenue, secondaryRevenue, totalRevenue] = await eventContract.totalRevenue();
+          } catch (err) {
+            console.log('Revenue info not available');
+          }
+          
           // Check if this event belongs to the current user
           const isOwnedByUser = venueAddress.toLowerCase() === account.toLowerCase();
           
@@ -89,6 +104,9 @@ function EventManagement() {
             eventDate,
             eventLocation,
             eventDescription,
+            primaryRevenue,
+            secondaryRevenue,
+            totalRevenue,
             isOwnedByUser
           });
         }
@@ -106,7 +124,7 @@ function EventManagement() {
     if (signer && account && contracts.ticketingSystem) {
       fetchEvents();
     }
-  }, [signer, account, contracts.ticketingSystem, createSuccess]);
+  }, [signer, account, contracts.ticketingSystem, createSuccess, withdrawSuccess]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -226,6 +244,70 @@ function EventManagement() {
         return 'Closed';
       default:
         return 'Unknown';
+    }
+  };
+
+  const handleWithdrawFunds = async (eventAddress) => {
+    try {
+      setWithdrawLoading(true);
+      setWithdrawSuccess(false);
+      setWithdrawError(null);
+      
+      if (!signer || !account) {
+        throw new Error('Please connect your wallet and ensure contracts are loaded');
+      }
+      
+      // Connect to the event contract
+      const EventABI = (await import('../../utils/abis/Event.json')).default;
+      const eventContract = new ethers.Contract(
+        eventAddress,
+        EventABI.abi,
+        signer
+      );
+      
+      // Get current revenue information before withdrawal
+      const [primaryRevenue, secondaryRevenue, totalRevenue] = await eventContract.totalRevenue();
+      
+      // Call the withdrawFunds function
+      const tx = await eventContract.withdrawFunds();
+      
+      // Wait for the transaction to be mined
+      const receipt = await tx.wait();
+      
+      // Update the events list with new balances (0)
+      const updatedEvents = events.map(event => {
+        if (event.address === eventAddress) {
+          return {
+            ...event,
+            primaryRevenue: ethers.parseEther("0"),
+            secondaryRevenue: ethers.parseEther("0"),
+            totalRevenue: ethers.parseEther("0"),
+          };
+        }
+        return event;
+      });
+      
+      setEvents(updatedEvents);
+      setWithdrawSuccess(true);
+      
+      // Set selected event
+      const event = events.find(e => e.address === eventAddress);
+      setSelectedEvent({
+        ...event,
+        withdrawnAmount: totalRevenue
+      });
+
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setWithdrawSuccess(false);
+        setSelectedEvent(null);
+      }, 3000);
+      
+      setWithdrawLoading(false);
+    } catch (err) {
+      console.error('Error withdrawing funds:', err);
+      setWithdrawError(err.message);
+      setWithdrawLoading(false);
     }
   };
 
@@ -452,6 +534,33 @@ function EventManagement() {
       
       <div className="mt-12">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Your Events</h2>
+        
+        {withdrawSuccess && selectedEvent && (
+          <div className="rounded-md bg-green-50 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Funds withdrawn successfully!</h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>You have withdrawn {formatEther(selectedEvent.withdrawnAmount)} ETH from {selectedEvent.name}.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {withdrawError && (
+          <div className="rounded-md bg-red-50 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error withdrawing funds</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{withdrawError}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
@@ -484,48 +593,109 @@ function EventManagement() {
               {events
                 .filter(event => event.isOwnedByUser)
                 .map((event) => (
-                  <li key={event.address}>
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <p className="truncate text-sm font-medium text-primary-600">{event.name}</p>
-                          <p className="mt-2 flex items-center text-sm text-gray-500">
-                            <span className="truncate">
-                              {formatEther(event.ticketPrice)} ETH | {event.ticketsSold.toString()}/{event.maxTickets.toString()} tickets sold
-                            </span>
+                  <li key={event.address} className="px-4 py-4 sm:px-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <p className="truncate text-sm font-medium text-primary-600">{event.name}</p>
+                        <p className="mt-2 flex items-center text-sm text-gray-500">
+                          <span className="truncate">
+                            {formatEther(event.ticketPrice)} ETH | {event.ticketsSold.toString()}/{event.maxTickets.toString()} tickets sold
+                          </span>
+                        </p>
+                      </div>
+                      <div className="ml-2 flex flex-shrink-0">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          Number(event.currentPhase) === 0 
+                            ? 'bg-green-100 text-green-800' 
+                            : Number(event.currentPhase) === 1 
+                              ? 'bg-yellow-100 text-yellow-800' 
+                              : 'bg-red-100 text-red-800'
+                        }`}>
+                          {getPhase(event.currentPhase)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-2 sm:flex sm:justify-between">
+                      <div className="sm:flex">
+                        {event.eventDate > 0 && (
+                          <p className="flex items-center text-sm text-gray-500">
+                            Date: {formatDate(event.eventDate)}
                           </p>
-                        </div>
-                        <div className="ml-2 flex flex-shrink-0">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            Number(event.currentPhase) === 0 
-                              ? 'bg-green-100 text-green-800' 
-                              : Number(event.currentPhase) === 1 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-red-100 text-red-800'
-                          }`}>
-                            {getPhase(event.currentPhase)}
-                          </span>
+                        )}
+                        {event.eventLocation && (
+                          <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                            Location: {event.eventLocation}
+                          </p>
+                        )}
+                      </div>
+                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                        <span className="text-xs">
+                          Contract: <Link to={`/events/${event.address}`} className="text-primary-600 hover:text-primary-900">{event.address.substr(0, 6)}...{event.address.substr(-4)}</Link>
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Revenue information and withdraw button */}
+                    <div className="mt-4 sm:flex sm:justify-between items-center">
+                      <div className="border rounded-md p-2 bg-gray-50">
+                        <div className="flex flex-col text-xs text-gray-600">
+                          <p>Primary Revenue: {formatEther(event.primaryRevenue)} ETH</p>
+                          <p>Secondary Revenue: {formatEther(event.secondaryRevenue)} ETH</p>
+                          <p className="font-medium mt-1">Total Revenue: {formatEther(event.totalRevenue)} ETH</p>
                         </div>
                       </div>
-                      <div className="mt-2 sm:flex sm:justify-between">
-                        <div className="sm:flex">
-                          {event.eventDate > 0 && (
-                            <p className="flex items-center text-sm text-gray-500">
-                              Date: {formatDate(event.eventDate)}
-                            </p>
-                          )}
-                          {event.eventLocation && (
-                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                              Location: {event.eventLocation}
-                            </p>
-                          )}
-                        </div>
-                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <span className="text-xs">
-                            Contract: <Link to={`/events/${event.address}`} className="text-primary-600 hover:text-primary-900">{event.address.substr(0, 6)}...{event.address.substr(-4)}</Link>
-                          </span>
-                        </div>
+                      
+                      <div className="mt-3 sm:mt-0">
+                        {ethers.formatEther(event.totalRevenue) !== '0.0' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleWithdrawFunds(event.address)}
+                            disabled={withdrawLoading}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          >
+                            {withdrawLoading ? (
+                              <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Withdrawing...
+                              </>
+                            ) : (
+                              'Withdraw Funds'
+                            )}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-500">No funds to withdraw</span>
+                        )}
                       </div>
+                    </div>
+                    
+                    {/* Management buttons */}
+                    <div className="mt-4 flex space-x-2">
+                      <Link 
+                        to={`/admin/manage-event/${event.address}`}
+                        className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      >
+                        Manage Event
+                      </Link>
+                      {Number(event.currentPhase) === 0 && (
+                        <button
+                          type="button"
+                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-yellow-700 bg-yellow-50 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                        >
+                          Close Event
+                        </button>
+                      )}
+                      {Number(event.currentPhase) !== 0 && (
+                        <button
+                          type="button"
+                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        >
+                          Reopen Event
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}
