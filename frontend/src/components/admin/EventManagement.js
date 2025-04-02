@@ -16,10 +16,7 @@ function EventManagement() {
     ticketPrice: '',
     maxTickets: '',
     resaleLimitMultiplier: '120',
-    venueFeePercentage: '500',
-    eventDate: '',
-    eventLocation: '',
-    eventDescription: ''
+    venueFeePercentage: '500'
   });
   const [isCreating, setIsCreating] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
@@ -187,32 +184,6 @@ function EventManagement() {
         }
       }
       
-      // If we have additional event details and the event address, set them on the contract
-      if (eventAddress && (formData.eventDate || formData.eventLocation || formData.eventDescription)) {
-        try {
-          const EventABI = (await import('../../utils/abis/Event.json')).default;
-          const eventContract = new ethers.Contract(
-            eventAddress,
-            EventABI.abi,
-            signer
-          );
-          
-          const dateTimestamp = formData.eventDate 
-            ? Math.floor(new Date(formData.eventDate).getTime() / 1000) 
-            : 0;
-          
-          const setDetailsTx = await eventContract.setEventDetails(
-            dateTimestamp,
-            formData.eventLocation || '',
-            formData.eventDescription || ''
-          );
-          
-          await setDetailsTx.wait();
-        } catch (err) {
-          console.error('Error setting event details:', err);
-        }
-      }
-      
       setCreateSuccess(true);
       setFormData({
         name: '',
@@ -220,10 +191,7 @@ function EventManagement() {
         ticketPrice: '',
         maxTickets: '',
         resaleLimitMultiplier: '120',
-        venueFeePercentage: '500',
-        eventDate: '',
-        eventLocation: '',
-        eventDescription: ''
+        venueFeePercentage: '500'
       });
       
       setIsCreating(false);
@@ -454,60 +422,6 @@ function EventManagement() {
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Fee for secondary sales in basis points (e.g., 500 = 5%)</p>
-          </div>
-          
-          <div className="sm:col-span-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Additional Event Details (Optional)</h3>
-          </div>
-          
-          <div className="sm:col-span-3">
-            <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700">
-              Event Date
-            </label>
-            <div className="mt-1">
-              <input
-                type="datetime-local"
-                name="eventDate"
-                id="eventDate"
-                value={formData.eventDate}
-                onChange={handleInputChange}
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              />
-            </div>
-          </div>
-          
-          <div className="sm:col-span-3">
-            <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700">
-              Event Location
-            </label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="eventLocation"
-                id="eventLocation"
-                value={formData.eventLocation}
-                onChange={handleInputChange}
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                placeholder="Concert Hall, City, Country"
-              />
-            </div>
-          </div>
-          
-          <div className="sm:col-span-6">
-            <label htmlFor="eventDescription" className="block text-sm font-medium text-gray-700">
-              Event Description
-            </label>
-            <div className="mt-1">
-              <textarea
-                name="eventDescription"
-                id="eventDescription"
-                rows="3"
-                value={formData.eventDescription}
-                onChange={handleInputChange}
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                placeholder="Describe your event..."
-              ></textarea>
-            </div>
           </div>
         </div>
         
