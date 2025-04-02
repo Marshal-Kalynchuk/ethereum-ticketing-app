@@ -2,7 +2,7 @@
 const TICKETING_SYSTEM_ADDRESS = process.env.REACT_APP_TICKETING_SYSTEM_ADDRESS;
 
 // Get supported chain IDs from environment variables
-const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337')
+const SUPPORTED_CHAIN_IDS = (process.env.REACT_APP_SUPPORTED_CHAIN_IDS || '31337,1337,11155111')
   .split(',')
   .map(Number);
 
@@ -15,6 +15,10 @@ export const CONTRACTS = {
   },
   1337: {
     // Same as above, for Hardhat network with chainId 1337
+    TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
+  },
+  // Sepolia testnet
+  11155111: {
     TICKETING_SYSTEM: TICKETING_SYSTEM_ADDRESS,
   },
 };
@@ -46,6 +50,7 @@ export const NETWORK_NAMES = {
   42: 'Kovan Testnet',
   1337: 'Hardhat Local',
   31337: 'Hardhat Local',
+  11155111: 'Sepolia Testnet',
 };
 
 // Get network name by ID

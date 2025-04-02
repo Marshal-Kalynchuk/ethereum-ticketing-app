@@ -1,23 +1,64 @@
 # Ethereum Ticketing System
 
-This project implements a decentralized ticketing system on Ethereum. Venues can create events, sell tickets as NFTs, and control secondary market resale prices.
+A decentralized blockchain-based ticketing platform built on Ethereum. This system enables venues to create events, sell tickets as NFTs, and control secondary market resale prices.
+
+## Architecture
+
+The system is built around three core smart contracts:
+
+1. **TicketingSystem.sol**: The main contract that venues interact with. Manages venue authorization and acts as a factory for creating new event contracts.
+
+2. **Event.sol**: Represents a specific event with configurable parameters. Handles primary ticket sales, revenue tracking, and event metadata management.
+
+3. **TicketNFT.sol**: Implements ERC721 NFT standard for tickets with built-in marketplace functionality and resale price restrictions.
 
 ## Features
 
-- Master ticketing contract where venues can deploy specific event contracts
-- Tickets as NFTs with customizable metadata
-- Built-in marketplace with resale price limits
-- Venue fee collection from secondary sales
-- Extensive metadata support for tickets and events
+### For Venues
+- **Authorization System**: Only approved venues can create events
+- **Event Management**: Configure event details, ticket types, and prices
+- **Revenue Collection**: Withdraw funds from primary sales and secondary market fees
+- **Resale Control**: Set limits on secondary market prices to prevent scalping
+- **Metadata Management**: Customize ticket information including seat details
 
-## Project Setup
+### For Users
+- **Primary Market**: Purchase tickets directly from venues
+- **Secondary Market**: Built-in marketplace for reselling tickets
+- **NFT Ownership**: Tickets represented as NFTs with verifiable authenticity
+- **Ticket Metadata**: View detailed information about tickets including seat, type, and event details
+
+### Technical Features
+- **Advanced NFT Implementation**: ERC721 with enumerable extension for better ticket tracking
+- **Security**: Reentrancy protection and comprehensive error handling
+- **Fee Management**: Configurable venue fees from secondary sales
+- **Testing**: Comprehensive test suite for all smart contract functionality
+
+## Project Structure
+
+```
+├── contracts/              # Solidity smart contracts
+│   ├── TicketingSystem.sol # Main factory contract
+│   ├── Event.sol           # Event-specific contract
+│   └── TicketNFT.sol       # NFT implementation for tickets
+├── frontend/               # React-based web interface
+│   ├── src/                # Frontend source code
+│   ├── public/             # Static assets
+│   └── package.json        # Frontend dependencies
+├── scripts/                # Deployment and utility scripts
+├── test/                   # Test suite
+├── deployments/            # Deployment artifacts
+└── hardhat.config.js       # Hardhat configuration
+```
+
+## Setup
 
 ### Prerequisites
 
 - Node.js (v14+ recommended)
 - npm or yarn
+- MetaMask or other Ethereum wallet
 
-### Installation
+### Backend Installation
 
 1. Clone the repository
 ```bash
@@ -30,67 +71,86 @@ cd ethereum-ticketing
 npm install
 ```
 
-This will install:
-- Hardhat development environment
-- OpenZeppelin contracts
-- Testing libraries
+3. Create a `.env` file based on `.env.example` with your configuration:
+```
+PRIVATE_KEY=your_private_key
+INFURA_API_KEY=your_infura_api_key
+ETHERSCAN_API_KEY=your_etherscan_api_key
+```
 
-### Compile Contracts
+### Frontend Installation
 
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file based on `.env.example` with your configuration.
+
+## Usage
+
+### Smart Contract Development
+
+Compile contracts:
 ```bash
 npm run compile
 ```
 
-### Run Tests
-
+Run tests:
 ```bash
 npm test
 ```
 
-### Local Deployment
+### Deployment
 
 Start a local blockchain node:
 ```bash
 npm run node
 ```
 
-In a new terminal, deploy the contracts:
+Deploy to local network:
 ```bash
 npm run deploy:local
 ```
 
+Deploy to testnet:
+```bash
+npm run deploy:sepolia
+```
+
+### Frontend Development
+
+Start the development server:
+```bash
+cd frontend
+npm start
+```
+
 ### Testnet Information
 
-For testing on Sepolia testnet:
+For testing on Ethereum testnets:
 
 - Sepolia Faucet: [Google Cloud Web3 Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
-- Project Wallet: `0x7B55F7dC73a07b912616cCA98d8D4F3979a77123`
+- Goerli Faucet: [Goerli Faucet](https://goerlifaucet.com/)
+- Supported networks: Sepolia, Goerli
 
-## Contract Architecture
+## Smart Contract Flow
 
-The system consists of three main contracts:
+1. System owner authorizes venues
+2. Venues create events with specific parameters
+3. Users purchase tickets directly from event contracts
+4. Tickets are minted as NFTs to user wallets
+5. Users can resell tickets within venue-defined price limits
+6. Venues collect fees from secondary sales
 
-1. **TicketingSystem.sol**: The main contract that venues interact with. Handles venue authorization and event creation.
+## Contributing
 
-2. **Event.sol**: Represents a specific event. Manages ticket sales, metadata, and revenue collection.
-
-3. **TicketNFT.sol**: Implements the NFT ticket standard with a built-in marketplace and resale restrictions.
-
-## Usage
-
-### For Venues
-
-1. Get authorized by the TicketingSystem owner
-2. Create an event with your desired configuration
-3. Set event details and ticket types
-4. Collect revenue from primary and secondary sales
-
-### For Users
-
-1. Purchase tickets directly from the Event contract
-2. View ticket details and metadata
-3. List tickets for resale within price limits
-4. Purchase tickets from the secondary market
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

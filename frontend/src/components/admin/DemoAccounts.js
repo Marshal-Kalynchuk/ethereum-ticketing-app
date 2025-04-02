@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-function DemoVenueAccounts() {
-  const [venues, setVenues] = useState([]);
+function DemoAccounts() {
+  const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
-    // Parse demo venues from environment variables
-    const demoVenues = [];
+    const demoAccounts = [];
     
-    // Try to load venues from environment variables (up to 3 venues)
+    // Load venue accounts from environment variables
     for (let i = 1; i <= 3; i++) {
       const address = process.env[`REACT_APP_DEMO_VENUE${i}_ADDRESS`];
       const privateKey = process.env[`REACT_APP_DEMO_VENUE${i}_PRIVATE_KEY`];
@@ -15,7 +14,8 @@ function DemoVenueAccounts() {
       const location = process.env[`REACT_APP_DEMO_VENUE${i}_LOCATION`] || 'Test Location';
       
       if (address && privateKey) {
-        demoVenues.push({
+        demoAccounts.push({
+          type: 'Venue',
           address,
           privateKey,
           name,
@@ -24,7 +24,24 @@ function DemoVenueAccounts() {
       }
     }
     
-    setVenues(demoVenues);
+    // Load customer accounts from environment variables
+    for (let i = 1; i <= 2; i++) {
+      const address = process.env[`REACT_APP_DEMO_CUSTOMER${i}_ADDRESS`];
+      const privateKey = process.env[`REACT_APP_DEMO_CUSTOMER${i}_PRIVATE_KEY`];
+      const name = process.env[`REACT_APP_DEMO_CUSTOMER${i}_NAME`] || `Demo Customer ${i}`;
+      
+      if (address && privateKey) {
+        demoAccounts.push({
+          type: 'Customer',
+          address,
+          privateKey,
+          name,
+          location: 'N/A'
+        });
+      }
+    }
+    
+    setAccounts(demoAccounts);
   }, []);
 
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -43,9 +60,9 @@ function DemoVenueAccounts() {
     <div className="mt-8">
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6 bg-gray-50">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Demo Venue Accounts</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Demo Accounts for Testing</h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Use these accounts to test venue authorization functionality.
+            Use these accounts to test venue authorization, ticket purchases, and resale functionality.
           </p>
         </div>
         <div className="border-t border-gray-200">
@@ -54,7 +71,10 @@ function DemoVenueAccounts() {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Venue Name
+                    Type
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Location
@@ -68,22 +88,29 @@ function DemoVenueAccounts() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {venues.map((venue, index) => (
-                  <tr key={index}>
+                {accounts.map((account, index) => (
+                  <tr key={index} className={account.type === 'Venue' ? 'bg-blue-50' : 'bg-green-50'}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        account.type === 'Venue' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {account.type}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {venue.name}
+                      {account.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {venue.location}
+                      {account.location}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                      {venue.address}
+                      {account.address}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                       <div className="flex items-center relative">
-                        <span className="truncate max-w-xs">{venue.privateKey}</span>
+                        <span className="truncate max-w-xs">{account.privateKey}</span>
                         <button
-                          onClick={() => handleCopyToClipboard(venue.privateKey, index)}
+                          onClick={() => handleCopyToClipboard(account.privateKey, index)}
                           className="ml-2 text-primary-600 hover:text-primary-900"
                           title="Copy to clipboard"
                         >
@@ -107,14 +134,18 @@ function DemoVenueAccounts() {
         <div className="px-4 py-4 bg-gray-50 text-sm text-gray-500">
           <p>To use these accounts for testing:</p>
           <ol className="list-decimal ml-5 mt-2">
-            <li>Import the private key into MetaMask or your wallet</li>
+            <li>Import the private key into MetaMask</li>
             <li>Connect with that account</li>
-            <li>The account will need to be authorized by the contract owner</li>
+            <li><strong>Venue accounts</strong> need to be authorized by the contract owner</li>
+            <li><strong>Customer accounts</strong> need enough Sepolia ETH for gas and ticket purchases</li>
           </ol>
+          <p className="mt-2">
+            <span className="font-semibold">Note:</span> These are demo accounts only for testing purposes. Do not send real assets to these addresses.
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-export default DemoVenueAccounts; 
+export default DemoAccounts; 

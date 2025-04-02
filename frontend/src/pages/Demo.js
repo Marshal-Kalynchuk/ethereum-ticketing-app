@@ -1,5 +1,5 @@
 import React from 'react';
-import DemoVenueAccounts from '../components/admin/DemoVenueAccounts';
+import DemoAccounts from '../components/admin/DemoAccounts';
 
 function Demo() {
   return (
@@ -12,14 +12,14 @@ function Demo() {
         </p>
       </div>
       
-      {/* Demo Venue Accounts section */}
+      {/* Demo Accounts section */}
       <div className="mb-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Venue Accounts</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Test Accounts</h2>
         <p className="mb-6 text-gray-600">
-          These accounts can be used to test venue functionality. Each account represents a venue
-          that can create and manage events, once authorized by the contract owner.
+          Use these accounts to test different roles in the system. Venue accounts can create and manage events
+          once authorized, while customer accounts can purchase and resell tickets.
         </p>
-        <DemoVenueAccounts />
+        <DemoAccounts />
       </div>
       
       <div className="bg-yellow-50 rounded-md p-4">

@@ -19,5 +19,5 @@ coverage.json
 .DS_Store
 *.log 
 
-/logs/*
-/deployments/*
+logs/
+deployments/
