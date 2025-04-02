@@ -46,6 +46,24 @@ function App() {
       <footer className="bg-gray-100 py-6 mt-12">
         <div className="container mx-auto px-4 text-center text-gray-600">
           <p>© {new Date().getFullYear()} Ethereum Ticketing System</p>
+          <div className="mt-2 flex justify-center space-x-4">
+            <a 
+              href="https://github.com/Marshal-Kalynchuk" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-800"
+            >
+              GitHub
+            </a>
+            <a 
+              href="https://github.com/Marshal-Kalynchuk/ethereum-ticketing-app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-800"
+            >
+              Repository
+            </a>
+          </div>
         </div>
       </footer>
     </div>
