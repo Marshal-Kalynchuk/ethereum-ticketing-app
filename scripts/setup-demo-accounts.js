@@ -2,7 +2,7 @@
 const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
-const { ethers } = require("ethers");
+require('dotenv').config();
 
 async function main() {
   const networkName = hre.network.name;
@@ -17,57 +17,36 @@ async function main() {
   
   const deploymentData = JSON.parse(fs.readFileSync(deploymentPath, 'utf8'));
   
-  // Get signers based on network
-  let deployer, venue1, venue2, customer1, customer2;
+  // Use the same deployer account that deployed the contracts
+  const [deployer] = await hre.ethers.getSigners();
+  console.log(`Setting up demo accounts using deployer: ${deployer.address}`);
   
-  if (networkName === 'localhost' || networkName === 'hardhat') {
-    // Use Hardhat's built-in accounts for local development
-    [deployer, venue1, venue2, customer1, customer2] = await hre.ethers.getSigners();
-  } else {
-    // For testnet/mainnet, use the generated wallets
-    const walletsPath = path.join(__dirname, '../deployments', 'demo-wallets.json');
-    if (!fs.existsSync(walletsPath)) {
-      console.error('Generated wallets not found. Run scripts/generate-wallets.js first.');
-      process.exit(1);
-    }
-    
-    const wallets = JSON.parse(fs.readFileSync(walletsPath, 'utf8'));
-    const provider = hre.ethers.provider;
-    
-    // Create wallet instances connected to the provider
-    deployer = new hre.ethers.Wallet(wallets.deployer.privateKey, provider);
-    venue1 = new hre.ethers.Wallet(wallets.venue1.privateKey, provider);
-    venue2 = new hre.ethers.Wallet(wallets.venue2.privateKey, provider);
-    customer1 = new hre.ethers.Wallet(wallets.customer1.privateKey, provider);
-    customer2 = new hre.ethers.Wallet(wallets.customer2.privateKey, provider);
-    
-    // Check if deployer has funds
-    const balance = await provider.getBalance(deployer.address);
-    if (balance.toString() === '0') {
-      console.error(`Deployer account (${deployer.address}) has no funds. Please send ETH to this address before continuing.`);
-      process.exit(1);
-    }
+  // Get venue wallet from .env
+  const venuePrivateKey = process.env.VENUE_PRIVATE_KEY;
+  if (!venuePrivateKey) {
+    console.error('VENUE_PRIVATE_KEY not found in .env file. Please add it.');
+    process.exit(1);
   }
+  
+  // Create venue wallet instance connected to the provider
+  const provider = hre.ethers.provider;
+  const venue = new hre.ethers.Wallet(venuePrivateKey, provider);
+  console.log(`Using venue wallet: ${venue.address}`);
   
   // Connect to the deployed TicketingSystem
   const TicketingSystem = await hre.ethers.getContractFactory("TicketingSystem", deployer);
   const ticketingSystem = TicketingSystem.attach(deploymentData.ticketingSystem);
   
-  // Authorize venues
-  console.log(`Authorizing Venue 1 (${venue1.address})...`);
-  const tx1 = await ticketingSystem.setVenueAuthorization(venue1.address, true);
-  await tx1.wait();
-  console.log(`Venue 1 authorized: ${venue1.address}`);
+  // Authorize venue
+  console.log(`Authorizing Venue (${venue.address})...`);
+  const tx = await ticketingSystem.setVenueAuthorization(venue.address, true);
+  await tx.wait();
+  console.log(`Venue authorized: ${venue.address}`);
   
-  console.log(`Authorizing Venue 2 (${venue2.address})...`);
-  const tx2 = await ticketingSystem.setVenueAuthorization(venue2.address, true);
-  await tx2.wait();
-  console.log(`Venue 2 authorized: ${venue2.address}`);
-  
-  // Create demo events
-  console.log("Creating demo event from Venue 1...");
-  // Connect as venue1
-  const venue1Contract = ticketingSystem.connect(venue1);
+  // Create demo event
+  console.log("Creating demo event from Venue...");
+  // Connect as venue
+  const venueContract = ticketingSystem.connect(venue);
   const event1Config = {
     name: "Demo Concert",
     symbol: "DEMO",
@@ -78,26 +57,42 @@ async function main() {
   };
   
   try {
-    const tx3 = await venue1Contract.createEvent(event1Config);
-    await tx3.wait();
-    console.log("Demo event created by Venue 1");
+    const tx3 = await venueContract.createEvent(event1Config);
+    const receipt = await tx3.wait();
+    
+    // Get the event address from the logs
+    const eventCreatedEvent = receipt.logs
+      .map(log => {
+        try {
+          return venueContract.interface.parseLog({
+            topics: [...log.topics],
+            data: log.data
+          });
+        } catch (e) {
+          return null;
+        }
+      })
+      .filter(parsedLog => parsedLog && parsedLog.name === 'EventCreated')[0];
+    
+    const eventAddress = eventCreatedEvent.args.eventContract;
+    console.log("Demo event created by Venue at:", eventAddress);
+    
+    // Save account info
+    const accountInfo = {
+      deployer: deployer.address,
+      venue: venue.address,
+      eventContract: eventAddress
+    };
+    
+    fs.writeFileSync(
+      path.join(__dirname, '../deployments', `${networkName}-accounts.json`),
+      JSON.stringify(accountInfo, null, 2)
+    );
+    
+    console.log("Demo accounts setup complete!");
   } catch (error) {
     console.error("Failed to create event:", error.message);
   }
-  
-  // Save account info
-  const accountInfo = {
-    deployer: deployer.address,
-    venues: [venue1.address, venue2.address],
-    customers: [customer1.address, customer2.address]
-  };
-  
-  fs.writeFileSync(
-    path.join(__dirname, '../deployments', `${networkName}-accounts.json`),
-    JSON.stringify(accountInfo, null, 2)
-  );
-  
-  console.log("Demo accounts setup complete!");
 }
 
 main()

@@ -7,34 +7,8 @@ async function main() {
   const networkName = hre.network.name;
   console.log(`Deploying Ticketing System contracts to ${networkName}...`);
 
-  // Get the deployer based on network
-  let deployer;
-  
-  if (networkName === 'localhost' || networkName === 'hardhat') {
-    // Use Hardhat's built-in accounts for local development
-    [deployer] = await hre.ethers.getSigners();
-  } else {
-    // For testnet/mainnet, use the generated wallet
-    const walletsPath = path.join(__dirname, '../deployments', 'demo-wallets.json');
-    if (!fs.existsSync(walletsPath)) {
-      console.error('Generated wallets not found. Run scripts/generate-wallets.js first.');
-      process.exit(1);
-    }
-    
-    const wallets = JSON.parse(fs.readFileSync(walletsPath, 'utf8'));
-    const provider = hre.ethers.provider;
-    
-    // Create deployer wallet instance connected to the provider
-    deployer = new hre.ethers.Wallet(wallets.deployer.privateKey, provider);
-    
-    // Check if deployer has funds
-    const balance = await provider.getBalance(deployer.address);
-    if (balance.toString() === '0') {
-      console.error(`Deployer account (${deployer.address}) has no funds. Please send ETH to this address before continuing.`);
-      process.exit(1);
-    }
-  }
-
+  // Use the account from hardhat.config.js (which uses PRIVATE_KEY from .env)
+  const [deployer] = await hre.ethers.getSigners();
   console.log(`Deploying contracts using account: ${deployer.address}`);
 
   // Deploy the TicketingSystem contract
@@ -94,7 +68,8 @@ async function main() {
       network: networkName,
       ticketingSystem: ticketingSystemAddress,
       testEvent: eventAddress,
-      ticketNFT: nftAddress
+      ticketNFT: nftAddress,
+      deployer: deployer.address
     };
     
     const deploymentsDir = path.join(__dirname, '../deployments');
@@ -110,7 +85,8 @@ async function main() {
     // For testnet/mainnet, just save the ticketing system address
     const deploymentInfo = {
       network: networkName,
-      ticketingSystem: ticketingSystemAddress
+      ticketingSystem: ticketingSystemAddress,
+      deployer: deployer.address
     };
     
     const deploymentsDir = path.join(__dirname, '../deployments');
