@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../../contexts/Web3Context';
 import { formatDate } from '../../utils/constants';
+import { Link } from 'react-router-dom';
 
 function EventManagement() {
   const { account, signer, contracts, formatEther, parseEther } = useWeb3();
@@ -521,7 +522,7 @@ function EventManagement() {
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
                           <span className="text-xs">
-                            Contract: <a href={`/events/${event.address}`} className="text-primary-600 hover:text-primary-900">{event.address.substr(0, 6)}...{event.address.substr(-4)}</a>
+                            Contract: <Link to={`/events/${event.address}`} className="text-primary-600 hover:text-primary-900">{event.address.substr(0, 6)}...{event.address.substr(-4)}</Link>
                           </span>
                         </div>
                       </div>
