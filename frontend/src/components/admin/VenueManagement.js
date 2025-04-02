@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from '../../contexts/Web3Context';
+import DemoVenueAccounts from './DemoVenueAccounts';
 
 function VenueManagement() {
   const { account, signer, contracts, formatEther } = useWeb3();
@@ -320,6 +321,9 @@ function VenueManagement() {
           </div>
         )}
       </div>
+      
+      {/* Demo Venue Accounts */}
+      <DemoVenueAccounts />
     </div>
   );
 }
