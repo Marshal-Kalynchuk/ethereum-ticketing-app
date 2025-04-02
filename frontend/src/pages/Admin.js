@@ -5,8 +5,9 @@ import VenueManagement from '../components/admin/VenueManagement';
 
 function Admin() {
   const { account, signer, contracts } = useWeb3();
-  const [activeTab, setActiveTab] = useState('events');
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [activeTab, setActiveTab] = useState('venues');
+  const [isVenue, setIsVenue] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,9 +22,13 @@ function Admin() {
         }
         
         // Check if the current account is an authorized venue
-        const isVenue = await contracts.ticketingSystem.isVenueAuthorized(account);
+        const venueAuthorized = await contracts.ticketingSystem.isVenueAuthorized(account);
+        // Check if the current account is the contract owner
+        const owner = await contracts.ticketingSystem.owner();
+        const isOwnerAccount = owner.toLowerCase() === account.toLowerCase();
         
-        setIsAuthorized(isVenue);
+        setIsVenue(venueAuthorized);
+        setIsOwner(isOwnerAccount);
         setLoading(false);
       } catch (err) {
         console.error('Error checking authorization:', err);
@@ -36,6 +41,21 @@ function Admin() {
       checkAuthorization();
     }
   }, [signer, account, contracts.ticketingSystem]);
+
+  // Handle tab changes, preventing non-venue users from accessing events tab
+  const handleTabChange = (tab) => {
+    if (tab === 'events' && !isVenue) {
+      return; // Don't allow switching to events tab if not a venue
+    }
+    setActiveTab(tab);
+  };
+
+  // Set default tab to venues if user is admin but not venue
+  useEffect(() => {
+    if (isOwner && !isVenue) {
+      setActiveTab('venues');
+    }
+  }, [isOwner, isVenue]);
 
   if (loading) {
     return (
@@ -60,14 +80,14 @@ function Admin() {
     );
   }
 
-  if (!isAuthorized) {
+  if (!isVenue && !isOwner) {
     return (
       <div className="bg-yellow-50 rounded-md p-4 max-w-3xl mx-auto">
         <div className="flex">
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800">Unauthorized Access</h3>
             <div className="mt-2 text-sm text-yellow-700">
-              <p>You do not have permission to access the admin panel. Only authorized venues can access this page.</p>
+              <p>You do not have permission to access the admin panel. Only authorized venues or the contract owner can access this page.</p>
             </div>
           </div>
         </div>
@@ -85,18 +105,20 @@ function Admin() {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          {isVenue && (
+            <button
+              onClick={() => handleTabChange('events')}
+              className={`${
+                activeTab === 'events'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Event Management
+            </button>
+          )}
           <button
-            onClick={() => setActiveTab('events')}
-            className={`${
-              activeTab === 'events'
-                ? 'border-primary-500 text-primary-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Event Management
-          </button>
-          <button
-            onClick={() => setActiveTab('venues')}
+            onClick={() => handleTabChange('venues')}
             className={`${
               activeTab === 'venues'
                 ? 'border-primary-500 text-primary-600'
@@ -110,7 +132,7 @@ function Admin() {
       
       {/* Tab content */}
       <div className="mt-6">
-        {activeTab === 'events' ? (
+        {activeTab === 'events' && isVenue ? (
           <EventManagement />
         ) : (
           <VenueManagement />
