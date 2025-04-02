@@ -40,7 +40,7 @@ function Navbar() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`${isActive(item.href)} px-3 py-2 rounded-md text-sm font-medium flex items-center`}
+                  className={`${isActive(item.href)} px-3 py-2 text-sm font-medium flex items-center`}
                 >
                   {item.name}
                 </Link>

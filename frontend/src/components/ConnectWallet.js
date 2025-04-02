@@ -44,7 +44,14 @@ function ConnectWallet() {
         </button>
         
         <div className="mt-4 text-sm text-gray-500">
-          <p>Make sure you have MetaMask installed and connected to the local Hardhat network</p>
+          <p>Make sure you have MetaMask installed and connected to the <span className="font-medium text-indigo-600">Sepolia testnet</span></p>
+          <div className="mt-2 p-3 bg-yellow-50 rounded-md border border-yellow-100">
+            <p className="text-yellow-800 font-medium mb-1">Important:</p>
+            <p className="text-yellow-700">This application requires the Sepolia testnet. Please configure your wallet to use Sepolia and make sure you have test ETH.</p>
+            <a href="https://sepoliafaucet.com/" target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-indigo-600 hover:text-indigo-800 underline">
+              Get Sepolia test ETH here →
+            </a>
+          </div>
         </div>
       </div>
     </div>

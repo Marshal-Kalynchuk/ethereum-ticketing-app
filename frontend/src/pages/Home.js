@@ -16,15 +16,32 @@ function Home() {
           Buy, sell, and manage event tickets as NFTs with price control and royalties
         </p>
         
-        <div className="mt-4 text-sm text-gray-500">
-          <div className="bg-green-50 rounded-md p-4 border border-green-100">
-            <p className="font-medium text-green-800">
-              Connected to {getNetworkName(networkId)}
-            </p>
-            <p className="text-green-700">
-              Account: {account}
-            </p>
-          </div>
+        <div className="mt-4 text-sm">
+          {account ? (
+            <div className={networkId === 11155111 ? "bg-green-50 rounded-md p-4 border border-green-100" : "bg-yellow-50 rounded-md p-4 border border-yellow-100"}>
+              <p className={networkId === 11155111 ? "font-medium text-green-800" : "font-medium text-yellow-800"}>
+                Connected to {getNetworkName(networkId)}
+                {networkId !== 11155111 && " (Please switch to Sepolia testnet)"}
+              </p>
+              <p className={networkId === 11155111 ? "text-green-700" : "text-yellow-700"}>
+                Account: {account}
+              </p>
+              {networkId !== 11155111 && (
+                <p className="mt-2 text-sm text-yellow-700">
+                  This application is designed to work with the Sepolia testnet. Please switch networks in your wallet.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="bg-blue-50 rounded-md p-4 border border-blue-100">
+              <p className="font-medium text-blue-800">
+                Connect your wallet to get started
+              </p>
+              <p className="text-blue-700">
+                This application runs on the Sepolia testnet
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
@@ -240,7 +257,7 @@ function Home() {
             </div>
             
             <p className="text-sm text-gray-500 italic">
-              This is a demonstration application built for educational purposes. Connect with MetaMask or another Web3 wallet to interact with the platform.
+              This is a demonstration application built for educational purposes. Connect with MetaMask or another Web3 wallet to interact with the platform on the <span className="font-medium">Sepolia testnet</span>.
             </p>
           </div>
         </div>
