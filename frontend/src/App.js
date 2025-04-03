@@ -25,8 +25,11 @@ function App() {
       
       <main className="container mx-auto px-4 py-8">
         {!account ? (
-          <div className="max-w-md mx-auto mt-20">
-            <ConnectWallet />
+          <div>
+            <div className="max-w-md mx-auto mt-10 mb-12">
+              <ConnectWallet />
+            </div>
+            <Home />
           </div>
         ) : (
           <Routes>

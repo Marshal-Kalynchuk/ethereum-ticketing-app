@@ -6,6 +6,18 @@ import { getNetworkName } from '../utils/constants';
 function Home() {
   const { account, networkId } = useWeb3();
   
+  // Function to prevent navigation when wallet is not connected
+  const handleClick = (e) => {
+    if (!account) {
+      e.preventDefault();
+    }
+  };
+  
+  // Dynamic button classes based on wallet connection
+  const buttonClass = account 
+    ? "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" 
+    : "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-300 bg-gray-400 cursor-not-allowed";
+  
   return (
     <div>
       <div className="max-w-3xl mx-auto text-center mb-12">
@@ -56,7 +68,8 @@ function Home() {
             </p>
             <Link 
               to="/events"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={buttonClass}
+              onClick={handleClick}
             >
               View Events
             </Link>
@@ -73,7 +86,8 @@ function Home() {
             </p>
             <Link 
               to="/my-tickets"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={buttonClass}
+              onClick={handleClick}
             >
               View My Tickets
             </Link>
@@ -90,7 +104,8 @@ function Home() {
             </p>
             <Link 
               to="/marketplace"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={buttonClass}
+              onClick={handleClick}
             >
               View Marketplace
             </Link>
