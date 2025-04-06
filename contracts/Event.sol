@@ -50,7 +50,6 @@ contract Event is ReentrancyGuard {
     event EventDetailsUpdated(uint256 eventDate, string eventLocation, string eventDescription);
     event TicketMetadataSet(uint256 indexed tokenId, string seatInfo, string ticketType);
     event BaseURISet(string baseURI);
-    event TicketTypeAdded(string ticketType);
 
     // --- Errors ---
     error InvalidPhase(SalePhase expected, SalePhase actual);
@@ -160,16 +159,6 @@ contract Event is ReentrancyGuard {
         ticketNFT.setBaseURI(_baseURI);
         
         emit BaseURISet(_baseURI);
-    }
-    
-    /**
-     * @dev Adds a valid ticket type for this event. Only callable by the venue.
-     * @param ticketType The ticket type to add (e.g., "VIP", "Backstage", etc.)
-     */
-    function addTicketType(string memory ticketType) external onlyVenueM {
-        validTicketTypes[ticketType] = true;
-        
-        emit TicketTypeAdded(ticketType);
     }
     
     /**
