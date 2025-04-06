@@ -69,9 +69,21 @@ contract TicketingSystem is Ownable {
 
     /**
      * @dev Allows an authorized venue to create a new Event contract.
-     * @param _config Configuration for the new event.
+     * @param _name Name of the event
+     * @param _symbol Symbol for the NFT ticket
+     * @param _ticketPrice Base ticket price in wei
+     * @param _maxTickets Maximum number of tickets available
+     * @param _resaleLimitMultiplier Multiplier for resale limit (e.g., 120 for 120% of original price)
+     * @param _venueFeePercentage Fee in basis points (e.g., 500 = 5%)
      */
-    function createEvent(EventConfig calldata _config)
+    function createEvent(
+        string calldata _name,
+        string calldata _symbol,
+        uint256 _ticketPrice,
+        uint256 _maxTickets,
+        uint256 _resaleLimitMultiplier,
+        uint256 _venueFeePercentage
+    )
         external
         returns (address eventContractAddress)
     {
@@ -80,26 +92,26 @@ contract TicketingSystem is Ownable {
             "TicketingSystem: Caller is not an authorized venue"
         );
         require(
-            bytes(_config.name).length > 0,
+            bytes(_name).length > 0,
             "TicketingSystem: Event name required"
         );
         require(
-            bytes(_config.symbol).length > 0,
+            bytes(_symbol).length > 0,
             "TicketingSystem: Ticket symbol required"
         );
         require(
-            _config.maxTickets > 0,
+            _maxTickets > 0,
             "TicketingSystem: Max tickets must be > 0"
         );
         // Resale limit must allow at least the original price (100%)
         require(
-            _config.resaleLimitMultiplier >= 100,
+            _resaleLimitMultiplier >= 100,
             "TicketingSystem: Resale limit must be >= 100%"
         );
         
         // Validate venue fee
         require(
-            _config.venueFeePercentage <= 3000, // Maximum 30% fee
+            _venueFeePercentage <= 3000, // Maximum 30% fee
             "TicketingSystem: Venue fee too high"
         );
 
@@ -107,10 +119,10 @@ contract TicketingSystem is Ownable {
 
         // 1. Deploy the TicketNFT contract
         TicketNFT newTicketNFT = new TicketNFT(
-            _config.name, // Use event name for NFT collection name
-            _config.symbol,
-            _config.resaleLimitMultiplier,
-            _config.venueFeePercentage
+            _name, // Use event name for NFT collection name
+            _symbol,
+            _resaleLimitMultiplier,
+            _venueFeePercentage
         );
         address ticketNFTAddress = address(newTicketNFT);
 
@@ -121,9 +133,9 @@ contract TicketingSystem is Ownable {
             address(this),
             msg.sender, // The venue calling this function
             ticketNFTAddress,
-            _config.name,
-            _config.ticketPrice,
-            _config.maxTickets
+            _name,
+            _ticketPrice,
+            _maxTickets
         );
         eventContractAddress = address(newEvent); // Assign the deployed address
 
@@ -135,10 +147,10 @@ contract TicketingSystem is Ownable {
             msg.sender,
             eventContractAddress, // Use the actual deployed address
             ticketNFTAddress,
-            _config.name,
-            _config.symbol,
-            _config.ticketPrice,
-            _config.maxTickets
+            _name,
+            _symbol,
+            _ticketPrice,
+            _maxTickets
         );
 
         // return eventContractAddress; // Already declared return variable

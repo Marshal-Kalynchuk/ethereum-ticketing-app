@@ -24,3 +24,6 @@ deployments/
 build/
 # Local Netlify folder
 .netlify
+
+.deps
+.states
