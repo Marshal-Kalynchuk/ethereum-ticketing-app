@@ -1,6 +1,15 @@
 # NFTicket: A Blockchain-based Ticketing Platform
 
-![NFTicket Banner](https://placeholder-for-banner-image.com/banner.jpg)
+
+<!-- Tech-stack badges -->
+[![Solidity ^0.8.20](https://img.shields.io/badge/Solidity-^0.8.20-363636?logo=solidity)](https://soliditylang.org)
+[![Hardhat 2.x](https://img.shields.io/badge/Hardhat-2.x-F1C40F?logo=ethereum&logoColor=white)](https://hardhat.org)
+[![ethers.js 6.x](https://img.shields.io/badge/ethers.js-6.x-2D3748)](https://docs.ethers.io)
+[![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
+[![Tailwind CSS 3](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![TypeScript 5](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://typescriptlang.org)
+[![Sepolia Testnet](https://img.shields.io/badge/Network-Sepolia-563D7C?logo=ethereum)](https://sepolia.etherscan.io)
+
 
 ## Revolutionizing Event Ticketing with Blockchain Technology
 
